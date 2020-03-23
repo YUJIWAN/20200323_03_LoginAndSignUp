@@ -22,7 +22,7 @@ public class ServerUtil {
 //     서버통신 주체? ServerUtil
 //     응답처리? 액티비티가 함. => 인터페이스로 연결.
 
-    public interface JsonResponseHandler {
+   public interface JsonResponseHandler {
         void onResponse(JSONObject json);
     }
 
@@ -89,6 +89,60 @@ public class ServerUtil {
 
 
    }
+
+//   파라미터 기초 구조 : 어떤 화면 context / 무슨일 handler
+//    가운데 추가 고려 : 화면에서 어떤 데이터를 받아서 => 서버로 전달?
+    public static void putRequesSignUp(Context context, String id, String pw, String name, String phoneNum, final JsonResponseHandler handler) {
+
+        OkHttpClient client = new OkHttpClient();
+
+//        어느주소로 ? 기능 주소만 변경.
+        String urlStr = String.format("%s/auth", BASE_URL);
+
+//        어떤 데이터를 담아야하는지 ? API 명세 참조.
+        FormBody formData = new FormBody.Builder()
+                .add("login_id", id)
+                .add("password", pw)
+                .add("name", name)
+                .add("phone", phoneNum)
+                .build();
+//        어떤 메쏘드를 쓰느지?
+        Request request = new Request.Builder()
+                .url(urlStr)
+                .put(formData)
+                .build();
+
+//        건드릴 필요없다!!!!!!!!!
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Log.e("서버 연결 실패","연결안됨!");
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+
+                String body = response.body().string();
+                Log.d("로그인응답", body);
+
+
+                try {
+
+                    JSONObject json = new JSONObject(body);
+
+                    if(handler != null){
+                        handler.onResponse(json);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+
+    }
+
 
 
 

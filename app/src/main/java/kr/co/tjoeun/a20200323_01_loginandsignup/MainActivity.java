@@ -3,6 +3,7 @@ package kr.co.tjoeun.a20200323_01_loginandsignup;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +33,14 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void setupEvents() {
+
+        binding.signUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, SignUpActivity.class);
+                startActivity(intent);
+            }
+        });
 
 //        체크박스에 체크가 될때 (변화가 있을때) 마다
 //        체크 여부를 저장.
@@ -91,11 +100,27 @@ public class MainActivity extends BaseActivity {
 
                             if(code == 200){
 //                                해당 기능이 성공적으로 동작
+//                                로그인 성공!
+                                JSONObject data = json.getJSONObject("data");
+                                JSONObject user = json.getJSONObject("user");
+                                String token = data.getString("token");
+//                                로그인한 사람의 이름을 토스트로
+                               final String name = user.getString("name");
+                                final String phone = user.getString("phone");
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(mContext,String.format("%s / %s ", name, phone) , Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+
                             }else{
 //                                뭔가 문제가 있었다.
 
 //                                Toast를 띄우는데 앱이 죽는다! => UI쓰레드
-//                                조치 : UIThread 안에서 토스트를 띄우도록
+//                                조치 : UIThread 안에서 토스트를 띄우도록///
 
                                 runOnUiThread(new Runnable() {
                                     @Override
